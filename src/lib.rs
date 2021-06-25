@@ -124,6 +124,11 @@ pub unsafe extern "C" fn PyInit_orjson() -> *mut PyObject {
     );
     opt!(
         mptr,
+        "OPT_CBOR\0",
+        opt::CBOR
+    );
+    opt!(
+        mptr,
         "OPT_PASSTHROUGH_DATETIME\0",
         opt::PASSTHROUGH_DATETIME
     );
@@ -249,11 +254,11 @@ pub unsafe extern "C" fn dumps(
     let mut optsbits: i32 = 0;
     if let Some(opts) = optsptr {
         if (*opts.as_ptr()).ob_type != typeref::INT_TYPE {
-            return raise_dumps_exception(Cow::Borrowed("Invalid opts"));
+            return raise_dumps_exception(Cow::Borrowed("Invalid opts - not int type"));
         }
         optsbits = PyLong_AsLong(optsptr.unwrap().as_ptr()) as i32;
         if !(0..=opt::MAX_OPT).contains(&optsbits) {
-            return raise_dumps_exception(Cow::Borrowed("Invalid opts"));
+            return raise_dumps_exception(Cow::Borrowed("Invalid opts - beyond max opt"));
         }
     }
 
@@ -322,11 +327,11 @@ pub unsafe extern "C" fn dumps(
     let mut optsbits: i32 = 0;
     if let Some(opts) = optsptr {
         if (*opts.as_ptr()).ob_type != typeref::INT_TYPE {
-            return raise_dumps_exception(Cow::Borrowed("Invalid opts"));
+            return raise_dumps_exception(Cow::Borrowed("Invalid opts - not int - nonpos"));
         }
         optsbits = PyLong_AsLong(optsptr.unwrap().as_ptr()) as i32;
         if optsbits < 0 || optsbits > opt::MAX_OPT {
-            return raise_dumps_exception(Cow::Borrowed("Invalid opts"));
+            return raise_dumps_exception(Cow::Borrowed("Invalid opts - beyond max_opt -nonpos"));
         }
     }
 

@@ -14,7 +14,7 @@ pub const PASSTHROUGH_SUBCLASS: Opt = 1 << 8;
 pub const PASSTHROUGH_DATETIME: Opt = 1 << 9;
 pub const APPEND_NEWLINE: Opt = 1 << 10;
 pub const PASSTHROUGH_DATACLASS: Opt = 1 << 11;
-
+pub const CBOR: Opt = 1 << 12;
 // deprecated
 pub const SERIALIZE_DATACLASS: Opt = 0;
 pub const SERIALIZE_UUID: Opt = 0;
@@ -32,6 +32,7 @@ pub const MAX_OPT: i32 = (APPEND_NEWLINE
     | PASSTHROUGH_DATETIME
     | PASSTHROUGH_DATACLASS
     | PASSTHROUGH_SUBCLASS
+    | CBOR
     | SERIALIZE_DATACLASS
     | SERIALIZE_NUMPY
     | SERIALIZE_UUID
