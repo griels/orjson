@@ -126,6 +126,7 @@ dependencies = [
  "bytecount",
  "bytes",
  "cc",
+ "ciborium",
  "encoding_rs",
  "half",
  "itoa",

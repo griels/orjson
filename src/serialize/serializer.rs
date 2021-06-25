@@ -20,15 +20,42 @@ pub(crate) fn serialize(
 ) -> Result<NonNull<pyo3_ffi::PyObject>, String> {
     let mut buf = BytesWriter::default();
     let obj = PyObjectSerializer::new(ptr, SerializerState::new(opts), default);
-    let res = if opt_disabled!(opts, INDENT_2) {
-        to_writer(&mut buf, &obj)
+    return if opts & CBOR != 0 {
+        serialize_cbor(opts, &mut buf, &obj)
     } else {
-        to_writer_pretty(&mut buf, &obj)
-    };
+        serialize_json(opts, &mut buf, &obj)
+    }
+}
+
+fn serialize_json(opts: u16, mut buf: &mut BytesWriter, obj: &PyObjectSerializer) -> Result<NonNull<pyo3::ffi::PyObject>, String> {
+    let res;
+    if opts & INDENT_2 != INDENT_2 {
+        res = serde_json::to_writer(&mut buf, &obj);
+    } else {
+        res = serde_json::to_writer_pretty(&mut buf, &obj);
+    }
     match res {
-        Ok(()) => Ok(buf.finish(opt_enabled!(opts, APPEND_NEWLINE))),
+        Ok(_) => {
+            if opts & APPEND_NEWLINE != 0 {
+                let _ = buf.write(b"\n");
+            }
+            Ok(buf.finish())
+        }
         Err(err) => {
-            ffi!(Py_DECREF(buf.bytes_ptr().as_ptr()));
+            ffi!(_Py_Dealloc(buf.finish().as_ptr()));
+            Err(err.to_string())
+        }
+    }
+}
+fn serialize_cbor(_opts: u16, mut buf: &mut BytesWriter, obj: &PyObjectSerializer) -> Result<NonNull<pyo3::ffi::PyObject>, String> {
+    let res;
+    res = ciborium::ser::into_writer(&obj, &mut buf);
+    match res {
+        Ok(_) => {
+            Ok(buf.finish())
+        }
+        Err(err) => {
+            ffi!(_Py_Dealloc(buf.finish().as_ptr()));
             Err(err.to_string())
         }
     }

@@ -6,7 +6,7 @@ edition = "2021"
 resolver = "2"
 rust-version = "1.85"
 license = "Apache-2.0 OR MIT"
-keywords = ["fast", "json", "dataclass", "dataclasses", "datetime", "rfc", "8259", "3339"]
+keywords = ["fast", "cbor", "dataclass", "dataclasses", "datetime"]
 include = [
     "Cargo.toml",
     "CHANGELOG.md",
@@ -46,6 +46,7 @@ optimize = []
 associative-cache = { version = "2", default-features = false }
 bytes = { version = "1", default-features = false }
 bytecount = { version = "^0.6.7", default-features = false, features = ["runtime-dispatch-simd"] }
+ciborium = { version = "0.1.0" }
 encoding_rs = { version = "0.8", default-features = false }
 half = { version = "2", default-features = false, features = ["std"] }
 itoa = { version = "1", default-features = false }
