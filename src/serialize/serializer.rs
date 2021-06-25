@@ -69,44 +69,6 @@ fn serialize_cbor(_opts: u16, mut buf: &mut BytesWriter, obj: &PyObjectSerialize
     }
 }
 
-/*
-
-pub fn serialize_cbor(
-    ptr: *mut pyo3::ffi::PyObject,
-    default: Option<NonNull<pyo3::ffi::PyObject>>,
-    opts: Opt,
-) -> Result<NonNull<pyo3::ffi::PyObject>, String> {
-    let mut buf = BytesWriter::new();
-    let obj = PyObjectSerializer::new(ptr, opts, 0, 0, default);
-    union MyUnion {
-        json_res: std::mem::ManuallyDrop<serde_json::Result<()>>,
-        cbor_res: Result<(), <writer::BytesWriter as Trait>::Error>,
-    }
-    let res;
-    if (opts & CBOR) == 0
-    {
-        res = MyUnion{cbor_res: ciborium::ser::into_writer(&obj, &mut buf)};
-    }
-    if opts & INDENT_2 != INDENT_2 {
-        res = serde_json::to_writer(&mut buf, &obj);
-    } else {
-        res = serde_json::to_writer_pretty(&mut buf, &obj);
-    }
-    match res {
-        Ok(_) => {
-            if opts & APPEND_NEWLINE != 0 {
-                let _ = buf.write(b"\n");
-            }
-            Ok(buf.finish())
-        }
-        Err(err) => {
-            ffi!(_Py_Dealloc(buf.finish().as_ptr()));
-            Err(err.to_string())
-        }
-    }
-}
-
-*/
 #[derive(Copy, Clone)]
 pub enum ObType {
     Str,
