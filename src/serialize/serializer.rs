@@ -27,7 +27,7 @@ pub(crate) fn serialize(
     }
 }
 
-fn serialize_json(opts: Opt, mut buf: &mut BytesWriter, obj: &PyObjectSerializer) -> Result<NonNull<pyo3_ffi::PyObject>, String> {
+fn serialize_json(opts: Opt, buf: &mut BytesWriter, obj: &PyObjectSerializer) -> Result<NonNull<pyo3_ffi::PyObject>, String> {
     let res = if opt_disabled!(opts, INDENT_2) {
         to_writer(&mut *buf, &obj)
     } else {
@@ -41,6 +41,7 @@ fn serialize_json(opts: Opt, mut buf: &mut BytesWriter, obj: &PyObjectSerializer
         }
     }
 }
+#[allow(unused_variables)]
 fn serialize_cbor(opts: Opt, buf: &mut BytesWriter, obj: &PyObjectSerializer) -> Result<NonNull<pyo3_ffi::PyObject>, String> {
     let res;
     res = ciborium::ser::into_writer(&obj, &mut *buf);
