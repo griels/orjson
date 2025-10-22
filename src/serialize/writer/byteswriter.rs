@@ -150,16 +150,18 @@ impl WriteExt for &mut BytesWriter {
     }
 }
 
-
 use std::io::{self, Write};
 
 impl Write for BytesWriter {
     fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
         let len = buf.len();
-        if self.len + len >= self.cap { self.grow(self.len + len); }
+        if self.len + len >= self.cap {
+            self.grow(self.len + len);
+        }
         BufMut::put_slice(self, buf);
         Ok(len)
     }
-    fn flush(&mut self) -> io::Result<()> { Ok(()) }
+    fn flush(&mut self) -> io::Result<()> {
+        Ok(())
+    }
 }
-

@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-use crate::opt::{Opt, APPEND_NEWLINE, INDENT_2, CBOR};
+use crate::opt::{Opt, APPEND_NEWLINE, CBOR, INDENT_2};
 use crate::serialize::obtype::{pyobject_to_obtype, ObType};
 use crate::serialize::per_type::{
     BoolSerializer, DataclassGenericSerializer, Date, DateTime, DefaultSerializer,
@@ -24,10 +24,14 @@ pub(crate) fn serialize(
         serialize_cbor(opts, &mut buf, &obj)
     } else {
         serialize_json(opts, &mut buf, &obj)
-    }
+    };
 }
 
-fn serialize_json(opts: Opt, buf: &mut BytesWriter, obj: &PyObjectSerializer) -> Result<NonNull<pyo3_ffi::PyObject>, String> {
+fn serialize_json(
+    opts: Opt,
+    buf: &mut BytesWriter,
+    obj: &PyObjectSerializer,
+) -> Result<NonNull<pyo3_ffi::PyObject>, String> {
     let res = if opt_disabled!(opts, INDENT_2) {
         to_writer(&mut *buf, &obj)
     } else {
@@ -42,13 +46,15 @@ fn serialize_json(opts: Opt, buf: &mut BytesWriter, obj: &PyObjectSerializer) ->
     }
 }
 #[allow(unused_variables)]
-fn serialize_cbor(opts: Opt, buf: &mut BytesWriter, obj: &PyObjectSerializer) -> Result<NonNull<pyo3_ffi::PyObject>, String> {
+fn serialize_cbor(
+    opts: Opt,
+    buf: &mut BytesWriter,
+    obj: &PyObjectSerializer,
+) -> Result<NonNull<pyo3_ffi::PyObject>, String> {
     let res;
     res = ciborium::ser::into_writer(&obj, &mut *buf);
     match res {
-        Ok(_) => {
-            Ok(buf.finish(false))
-        }
+        Ok(_) => Ok(buf.finish(false)),
         Err(err) => {
             ffi!(Py_DECREF(buf.bytes_ptr().as_ptr()));
             Err(err.to_string())
