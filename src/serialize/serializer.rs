@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-use crate::opt::{Opt, APPEND_NEWLINE, INDENT_2};
+use crate::opt::{Opt, APPEND_NEWLINE, INDENT_2, CBOR};
 use crate::serialize::obtype::{pyobject_to_obtype, ObType};
 use crate::serialize::per_type::{
     BoolSerializer, DataclassGenericSerializer, Date, DateTime, DefaultSerializer,
@@ -20,42 +20,36 @@ pub(crate) fn serialize(
 ) -> Result<NonNull<pyo3_ffi::PyObject>, String> {
     let mut buf = BytesWriter::default();
     let obj = PyObjectSerializer::new(ptr, SerializerState::new(opts), default);
-    return if opts & CBOR != 0 {
+    return if opt_enabled!(opts, CBOR) {
         serialize_cbor(opts, &mut buf, &obj)
     } else {
         serialize_json(opts, &mut buf, &obj)
     }
 }
 
-fn serialize_json(opts: u16, mut buf: &mut BytesWriter, obj: &PyObjectSerializer) -> Result<NonNull<pyo3::ffi::PyObject>, String> {
-    let res;
-    if opts & INDENT_2 != INDENT_2 {
-        res = serde_json::to_writer(&mut buf, &obj);
+fn serialize_json(opts: Opt, mut buf: &mut BytesWriter, obj: &PyObjectSerializer) -> Result<NonNull<pyo3_ffi::PyObject>, String> {
+    let res = if opt_disabled!(opts, INDENT_2) {
+        to_writer(&mut *buf, &obj)
     } else {
-        res = serde_json::to_writer_pretty(&mut buf, &obj);
-    }
+        to_writer_pretty(&mut *buf, &obj)
+    };
     match res {
-        Ok(_) => {
-            if opts & APPEND_NEWLINE != 0 {
-                let _ = buf.write(b"\n");
-            }
-            Ok(buf.finish())
-        }
+        Ok(()) => Ok(buf.finish(opt_enabled!(opts, APPEND_NEWLINE))),
         Err(err) => {
-            ffi!(_Py_Dealloc(buf.finish().as_ptr()));
+            ffi!(Py_DECREF(buf.bytes_ptr().as_ptr()));
             Err(err.to_string())
         }
     }
 }
-fn serialize_cbor(_opts: u16, mut buf: &mut BytesWriter, obj: &PyObjectSerializer) -> Result<NonNull<pyo3::ffi::PyObject>, String> {
+fn serialize_cbor(opts: Opt, buf: &mut BytesWriter, obj: &PyObjectSerializer) -> Result<NonNull<pyo3_ffi::PyObject>, String> {
     let res;
-    res = ciborium::ser::into_writer(&obj, &mut buf);
+    res = ciborium::ser::into_writer(&obj, &mut *buf);
     match res {
         Ok(_) => {
-            Ok(buf.finish())
+            Ok(buf.finish(false))
         }
         Err(err) => {
-            ffi!(_Py_Dealloc(buf.finish().as_ptr()));
+            ffi!(Py_DECREF(buf.bytes_ptr().as_ptr()));
             Err(err.to_string())
         }
     }

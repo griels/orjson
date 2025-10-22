@@ -1,5 +1,5 @@
 [project]
-name = "orjson"
+name = "orcbor"
 version = "3.11.3"
 repository = "https://github.com/ijl/orjson"
 description = "Fast, correct Python JSON library supporting dataclasses, datetimes, and numpy"
