@@ -13,10 +13,12 @@ pub(crate) fn deserialize(
     debug_assert!(ffi!(Py_REFCNT(ptr)) >= 1);
     let buffer = read_input_to_buf(ptr)?;
     debug_assert!(!buffer.is_empty());
-    if  opt_enabled!(opts.unwrap_or(CBOR), 0){
+    if opt_enabled!(opts.unwrap_or(CBOR), 0) {
         #[cfg(not(feature = "yyjson"))]
         {
-            crate::deserialize::backend::deserialize_cbor(str::from_utf8(buffer).unwrap())
+            // The function expects a reference to a reference to a u8
+            let first_byte = &buffer[0];
+            crate::deserialize::backend::deserialize_cbor(&first_byte)
         }
         #[cfg(feature = "yyjson")]
         {
@@ -25,8 +27,7 @@ pub(crate) fn deserialize(
             let buffer_str = unsafe { core::str::from_utf8_unchecked(buffer) };
             crate::deserialize::backend::deserialize(buffer_str)
         }
-    }
-    else {
+    } else {
         if unlikely!(buffer.len() == 2) {
             if buffer == b"[]" {
                 return Ok(nonnull!(ffi!(PyList_New(0))));
@@ -40,5 +41,4 @@ pub(crate) fn deserialize(
 
         crate::deserialize::backend::deserialize(buffer_str)
     }
-
 }
