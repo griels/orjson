@@ -56,6 +56,13 @@ fn main() {
         println!("cargo:rustc-cfg=feature=\"inline_int\"");
     }
 
+    // Ensure unresolved CPython symbols are allowed on macOS extension modules and
+    // resolved at load time by the Python runtime.
+    if std::env::var("CARGO_CFG_TARGET_OS").as_deref() == Ok("macos") {
+        println!("cargo:rustc-link-arg=-undefined");
+        println!("cargo:rustc-link-arg=dynamic_lookup");
+    }
+
     if env::var("ORJSON_DISABLE_YYJSON").is_ok() {
         if env::var("CARGO_FEATURE_YYJSON").is_ok() {
             panic!("ORJSON_DISABLE_YYJSON and --features=yyjson both enabled.")
