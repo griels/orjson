@@ -82,7 +82,7 @@ mod str;
 mod typeref;
 
 use core::ffi::{c_char, c_int, c_void};
-use pyo3_ffi::{PyCFunction_NewEx, PyErr_SetObject, PyLong_AsLong, PyLong_FromLongLong, PyMethodDef, PyMethodDefPointer, PyModuleDef, PyModuleDef_HEAD_INIT, PyModuleDef_Slot, PyObject, PyTuple_New, PyTypeObject, PyUnicode_FromStringAndSize, PyUnicode_InternFromString, PyVectorcall_NARGS, Py_DECREF, Py_SIZE, Py_ssize_t, METH_KEYWORDS, METH_O};
+use pyo3_ffi::{PyCFunction_NewEx, PyErr_SetObject, PyLong_AsLong, PyLong_FromLongLong, PyMethodDef, PyMethodDefPointer, PyModuleDef, PyModuleDef_HEAD_INIT, PyModuleDef_Slot, PyObject, PyTuple_New, PyUnicode_FromStringAndSize, PyUnicode_InternFromString, PyVectorcall_NARGS, Py_DECREF, Py_SIZE, Py_ssize_t, METH_KEYWORDS};
 
 use crate::util::{isize_to_usize, usize_to_isize};
 
@@ -479,7 +479,7 @@ unsafe fn handle_params_deserialize(args: *const *mut PyObject, kwnames: *mut Py
     None
 }
 
-unsafe fn parse_opts(mut optsptr: Option<NonNull<PyObject>>) -> Result<i32, *mut PyObject> {
+unsafe fn parse_opts(optsptr: Option<NonNull<PyObject>>) -> Result<i32, *mut PyObject> {
     let mut optsbits: i32 = 0;
     if unlikely!(optsptr.is_some()) {
         let opts = optsptr.unwrap();
