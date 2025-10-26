@@ -14,4 +14,3 @@ pub(crate) use json::deserialize;
 
 #[cfg(not(feature = "yyjson"))]
 pub(crate) use json::deserialize_cbor;
-
