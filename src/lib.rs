@@ -82,7 +82,12 @@ mod str;
 mod typeref;
 
 use core::ffi::{c_char, c_int, c_void};
-use pyo3_ffi::{PyCFunction_NewEx, PyErr_SetObject, PyLong_AsLong, PyLong_FromLongLong, PyMethodDef, PyMethodDefPointer, PyModuleDef, PyModuleDef_HEAD_INIT, PyModuleDef_Slot, PyObject, PyTuple_New, PyUnicode_FromStringAndSize, PyUnicode_InternFromString, PyVectorcall_NARGS, Py_DECREF, Py_SIZE, Py_ssize_t, METH_KEYWORDS};
+use pyo3_ffi::{
+    PyCFunction_NewEx, PyErr_SetObject, PyLong_AsLong, PyLong_FromLongLong, PyMethodDef,
+    PyMethodDefPointer, PyModuleDef, PyModuleDef_HEAD_INIT, PyModuleDef_Slot, PyObject,
+    PyTuple_New, PyUnicode_FromStringAndSize, PyUnicode_InternFromString, PyVectorcall_NARGS,
+    Py_DECREF, Py_SIZE, Py_ssize_t, METH_KEYWORDS,
+};
 
 use crate::util::{isize_to_usize, usize_to_isize};
 
@@ -369,10 +374,11 @@ fn raise_dumps_exception_dynamic(err: &str) -> *mut PyObject {
 }
 
 #[unsafe(no_mangle)]
-pub(crate) unsafe extern "C" fn loads(_self: *mut PyObject,
-                                      args: *const *mut PyObject,
-                                      nargs: Py_ssize_t,
-                                      kwnames: *mut PyObject,
+pub(crate) unsafe extern "C" fn loads(
+    _self: *mut PyObject,
+    args: *const *mut PyObject,
+    nargs: Py_ssize_t,
+    kwnames: *mut PyObject,
 ) -> *mut PyObject {
     let mut optsptr: Option<NonNull<PyObject>> = None;
     handle_params_deserialize(args, kwnames, &mut optsptr, nargs);
@@ -424,7 +430,13 @@ pub(crate) unsafe extern "C" fn dumps(
     }
 }
 
-unsafe fn handle_params(args: *const *mut PyObject, kwnames: *mut PyObject, default: &mut Option<NonNull<PyObject>>, optsptr: &mut Option<NonNull<PyObject>>, num_args: Py_ssize_t) -> Option<*mut PyObject> {
+unsafe fn handle_params(
+    args: *const *mut PyObject,
+    kwnames: *mut PyObject,
+    default: &mut Option<NonNull<PyObject>>,
+    optsptr: &mut Option<NonNull<PyObject>>,
+    num_args: Py_ssize_t,
+) -> Option<*mut PyObject> {
     if num_args & 3 == 3 {
         *optsptr = Some(NonNull::new_unchecked(*args.offset(2)));
     }
@@ -455,7 +467,12 @@ unsafe fn handle_params(args: *const *mut PyObject, kwnames: *mut PyObject, defa
     None
 }
 
-unsafe fn handle_params_deserialize(args: *const *mut PyObject, kwnames: *mut PyObject, optsptr: &mut Option<NonNull<PyObject>>, num_args: Py_ssize_t) -> Option<*mut PyObject> {
+unsafe fn handle_params_deserialize(
+    args: *const *mut PyObject,
+    kwnames: *mut PyObject,
+    optsptr: &mut Option<NonNull<PyObject>>,
+    num_args: Py_ssize_t,
+) -> Option<*mut PyObject> {
     if num_args & 2 == 2 {
         *optsptr = Some(NonNull::new_unchecked(*args.offset(2)));
     }
