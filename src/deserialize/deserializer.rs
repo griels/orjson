@@ -16,9 +16,8 @@ pub(crate) fn deserialize(
     if opt_enabled!(opts.unwrap_or(CBOR), 0) {
         #[cfg(not(feature = "yyjson"))]
         {
-            // The function expects a reference to a reference to a u8
-            let first_byte = &buffer[0];
-            crate::deserialize::backend::deserialize_cbor(&first_byte)
+            // Pass the full buffer slice to the CBOR deserializer
+            crate::deserialize::backend::deserialize_cbor(buffer)
         }
         #[cfg(feature = "yyjson")]
         {
