@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: (Apache-2.0 OR MIT)
 
-use crate::opt::{Opt, APPEND_NEWLINE, JSON, INDENT_2};
+use crate::opt::{Opt, APPEND_NEWLINE, CBOR, INDENT_2};
 use crate::serialize::obtype::{pyobject_to_obtype, ObType};
 use crate::serialize::per_type::{
     BoolSerializer, DataclassGenericSerializer, Date, DateTime, DefaultSerializer,
@@ -20,11 +20,11 @@ pub(crate) fn serialize(
 ) -> Result<NonNull<pyo3_ffi::PyObject>, String> {
     let mut buf = BytesWriter::default();
     let obj = PyObjectSerializer::new(ptr, SerializerState::new(opts), default);
-    if opt_disabled!(opts, JSON) {
+    return if opt_enabled!(opts, CBOR) {
         serialize_cbor(opts, &mut buf, &obj)
     } else {
         serialize_json(opts, &mut buf, &obj)
-    }
+    };
 }
 
 fn serialize_json(

@@ -30,6 +30,27 @@ pub(crate) fn deserialize(
     }
 }
 
+pub(crate) fn deserialize_cbor(
+    data: &'static &u8,
+) -> Result<NonNull<pyo3_ffi::PyObject>, DeserializeError<'static>> {
+    let mut deserializer = ciborium::de::Error::Semantic(Option::Some(data.len()), data);
+    let seed = JsonValue {};
+    match seed.deserialize(&mut deserializer) {
+        Ok(obj) => {
+            deserializer.end().map_err(|e| {
+                DeserializeError::from_json(Cow::Owned(e.to_string()), e.line(), e.column(), data)
+            })?;
+            Ok(obj)
+        }
+        Err(e) => Err(DeserializeError::from_json(
+            Cow::Owned(e.to_string()),
+            e.line(),
+            e.column(),
+            data,
+        )),
+    }
+}
+
 #[derive(Clone, Copy)]
 struct JsonValue;
 
