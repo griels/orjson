@@ -34,16 +34,25 @@ pub(crate) fn deserialize(
 pub(crate) fn deserialize_cbor(
     data: &[u8],
 ) -> Result<NonNull<pyo3_ffi::PyObject>, DeserializeError<'static>> {
-    let mut de = ciborium::de::from_reader(Cursor::new(data));
-    let seed = JsonValue {};
-    match seed.deserialize(&mut de) {
-        Ok(obj) => Ok(obj),
+    match ciborium::de::from_reader::<PyObjOut, _>(Cursor::new(data)) {
+        Ok(PyObjOut(obj)) => Ok(obj),
         Err(e) => Err(DeserializeError::invalid(Cow::Owned(e.to_string()))),
     }
 }
 
 #[derive(Clone, Copy)]
 struct JsonValue;
+
+struct PyObjOut(pub NonNull<pyo3_ffi::PyObject>);
+
+impl<'de> serde::Deserialize<'de> for PyObjOut {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::de::Deserializer<'de>,
+    {
+        deserializer.deserialize_any(JsonValue).map(PyObjOut)
+    }
+}
 
 impl<'de> DeserializeSeed<'de> for JsonValue {
     type Value = NonNull<pyo3_ffi::PyObject>;
