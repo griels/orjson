@@ -17,7 +17,7 @@ pub(crate) fn deserialize(
     opts: Option<Opt>,
 ) -> Result<NonNull<pyo3_ffi::PyObject>, DeserializeError<'static>> {
     debug_assert!(ffi!(Py_REFCNT(ptr)) >= 1);
-    if opt_enabled!(opts.unwrap_or(CBOR), 0) {
+    if opt_enabled!(opts.unwrap_or(0), CBOR) {
         #[cfg(not(feature = "yyjson"))]
         {
             let buffer = unsafe {
