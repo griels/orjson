@@ -8,7 +8,10 @@ def dumps(
     default: Callable[[Any], Any] | None = ...,
     option: int | None = ...,
 ) -> bytes: ...
-def loads(__obj: bytes | bytearray | memoryview | str) -> Any: ...
+def loads(
+    __obj: bytes | bytearray | memoryview | str,
+    option: int | None = ...,
+) -> Any: ...
 
 class JSONDecodeError(json.JSONDecodeError): ...
 class JSONEncodeError(TypeError): ...
@@ -31,3 +34,4 @@ OPT_SERIALIZE_UUID: int
 OPT_SORT_KEYS: int
 OPT_STRICT_INTEGER: int
 OPT_UTC_Z: int
+MAX_OPT: int
