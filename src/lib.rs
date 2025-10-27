@@ -474,7 +474,7 @@ unsafe fn handle_params_deserialize(
     num_args: Py_ssize_t,
 ) -> Option<*mut PyObject> {
     if num_args & 2 == 2 {
-        *optsptr = Some(NonNull::new_unchecked(*args.offset(2)));
+        *optsptr = Some(NonNull::new_unchecked(*args.offset(1)));
     }
     if unlikely!(!kwnames.is_null()) {
         for i in 0..=Py_SIZE(kwnames).saturating_sub(1) {
@@ -505,10 +505,10 @@ unsafe fn parse_opts(optsptr: Option<NonNull<PyObject>>) -> Result<i32, *mut PyO
             let tmp = PyLong_AsLong(optsptr.unwrap().as_ptr()) as i32; // stmt_expr_attributes
             optsbits = tmp;
             if unlikely!(!(0..=opt::MAX_OPT).contains(&optsbits)) {
-                return Err(raise_dumps_exception_fixed("Invalid opts"));
+                return Err(raise_dumps_exception_fixed(format!("Invalid opts, got {optsbits}").as_str()));
             }
         } else if unlikely!(!core::ptr::eq(opts.as_ptr(), typeref::NONE)) {
-            return Err(raise_dumps_exception_fixed("Invalid opts"));
+            return Err(raise_dumps_exception_fixed("Invalid opts, not INT_TYPE"));
         }
     }
     Ok(optsbits)
