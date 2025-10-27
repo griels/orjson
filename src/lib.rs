@@ -213,7 +213,7 @@ pub(crate) unsafe extern "C" fn orjson_init_exec(mptr: *mut PyObject) -> c_int {
         add!(mptr, c"JSONDecodeError", typeref::JsonDecodeError);
         add!(mptr, c"JSONEncodeError", typeref::JsonEncodeError);
         opt!(mptr, c"OPT_CBOR", opt::CBOR);
-
+        opt!(mptr, c"MAX_OPT", opt::MAX_OPT);
         0
     }
 }
