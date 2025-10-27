@@ -11,22 +11,31 @@ pub(crate) fn deserialize(
     opts: Option<Opt>,
 ) -> Result<NonNull<pyo3_ffi::PyObject>, DeserializeError<'static>> {
     debug_assert!(ffi!(Py_REFCNT(ptr)) >= 1);
-    let buffer = read_input_to_buf(ptr)?;
-    debug_assert!(!buffer.is_empty());
     if opt_enabled!(opts.unwrap_or(CBOR), 0) {
         #[cfg(not(feature = "yyjson"))]
         {
+            let buffer = unsafe {
+                core::slice::from_raw_parts(
+                    PyBytes_AS_STRING(ptr).cast::<u8>(),
+                    isize_to_usize(PyBytes_GET_SIZE(ptr)),
+                )
+            };
             // Pass the full buffer slice to the CBOR deserializer
             crate::deserialize::backend::deserialize_cbor(buffer)
         }
         #[cfg(feature = "yyjson")]
         {
+            let buffer = crate::deserialize::utf8::read_input_to_buf(ptr)?;
+
             // Since we don't have deserialize_cbor with yyjson feature,
             // we'll fall back to the regular deserialize
             let buffer_str = unsafe { core::str::from_utf8_unchecked(buffer) };
             crate::deserialize::backend::deserialize(buffer_str)
         }
     } else {
+        let buffer = read_input_to_buf(ptr)?;
+        debug_assert!(!buffer.is_empty());
+
         if unlikely!(buffer.len() == 2) {
             if buffer == b"[]" {
                 return Ok(nonnull!(ffi!(PyList_New(0))));
