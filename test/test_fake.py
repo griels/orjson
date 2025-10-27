@@ -11,7 +11,7 @@ try:
 except ImportError:
     Faker = None  # type: ignore
 
-NUM_LOOPS = 10
+NUM_LOOPS = 100
 NUM_SHUFFLES = 10
 NUM_ENTRIES = 250
 
@@ -30,7 +30,8 @@ FAKER_LOCALES = [
 
 class TestFaker:
     @pytest.mark.skipif(Faker is None, reason="faker not available")
-    def test_faker(self):
+    @pytest.mark.parametrize(["dialect"], ([orjson.OPT_CBOR],[0]), ids=["CBOR", "JSON"])
+    def test_faker(self, dialect: int):
         fake = Faker(FAKER_LOCALES)
         profile_keys = list(
             set(fake.profile().keys()) - {"birthdate", "current_location"},
@@ -46,5 +47,5 @@ class TestFaker:
             ]
             for _ in range(NUM_SHUFFLES):
                 random.shuffle(data)
-                output = orjson.dumps(data)
-                assert orjson.loads(output) == data
+                output = orjson.dumps(data, option=dialect)
+                assert orjson.loads(output, option=dialect) == data
