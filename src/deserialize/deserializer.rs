@@ -2,11 +2,8 @@
 
 use crate::deserialize::utf8::read_input_to_buf;
 use crate::deserialize::DeserializeError;
-#[cfg(not(feature = "yyjson"))]
 use crate::ffi::PyBytes_AS_STRING;
-#[cfg(not(feature = "yyjson"))]
 use crate::ffi::PyBytes_GET_SIZE;
-#[cfg(not(feature = "yyjson"))]
 use crate::isize_to_usize;
 use crate::opt::{Opt, CBOR};
 use crate::typeref::EMPTY_UNICODE;
@@ -17,8 +14,7 @@ pub(crate) fn deserialize(
     opts: Option<Opt>,
 ) -> Result<NonNull<pyo3_ffi::PyObject>, DeserializeError<'static>> {
     debug_assert!(ffi!(Py_REFCNT(ptr)) >= 1);
-    if opt_enabled!(opts.unwrap_or(0), CBOR) {
-        #[cfg(not(feature = "yyjson"))]
+    if opt_enabled!(opts.unwrap(), CBOR) {
         {
             let buffer = unsafe {
                 core::slice::from_raw_parts(
@@ -28,15 +24,6 @@ pub(crate) fn deserialize(
             };
             // Pass the full buffer slice to the CBOR deserializer
             crate::deserialize::backend::deserialize_cbor(buffer)
-        }
-        #[cfg(feature = "yyjson")]
-        {
-            let buffer = crate::deserialize::utf8::read_input_to_buf(ptr)?;
-
-            // Since we don't have deserialize_cbor with yyjson feature,
-            // we'll fall back to the regular deserialize
-            let buffer_str = unsafe { core::str::from_utf8_unchecked(buffer) };
-            crate::deserialize::backend::deserialize(buffer_str)
         }
     } else {
         let buffer = read_input_to_buf(ptr)?;
