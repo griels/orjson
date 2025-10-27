@@ -40,5 +40,4 @@ pub(crate) const MAX_OPT: i32 = (APPEND_NEWLINE
     | SORT_KEYS
     | STRICT_INTEGER
     | UTC_Z
-    | CBOR
-) as i32;
+    | CBOR) as i32;

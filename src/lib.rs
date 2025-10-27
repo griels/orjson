@@ -505,7 +505,9 @@ unsafe fn parse_opts(optsptr: Option<NonNull<PyObject>>) -> Result<i32, *mut PyO
             let tmp = PyLong_AsLong(optsptr.unwrap().as_ptr()) as i32; // stmt_expr_attributes
             optsbits = tmp;
             if unlikely!(!(0..=opt::MAX_OPT).contains(&optsbits)) {
-                return Err(raise_dumps_exception_fixed(format!("Invalid opts, got {optsbits}").as_str()));
+                return Err(raise_dumps_exception_fixed(
+                    format!("Invalid opts, got {optsbits}").as_str(),
+                ));
             }
         } else if unlikely!(!core::ptr::eq(opts.as_ptr(), typeref::NONE)) {
             return Err(raise_dumps_exception_fixed("Invalid opts, not INT_TYPE"));
