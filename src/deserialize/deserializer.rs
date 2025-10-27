@@ -5,6 +5,12 @@ use crate::deserialize::DeserializeError;
 use crate::opt::{Opt, CBOR};
 use crate::typeref::EMPTY_UNICODE;
 use core::ptr::NonNull;
+#[cfg(not(feature = "yyjson"))]
+use crate::isize_to_usize;
+#[cfg(not(feature = "yyjson"))]
+use crate::ffi::PyBytes_AS_STRING;
+#[cfg(not(feature = "yyjson"))]
+use crate::ffi::PyBytes_GET_SIZE;
 
 pub(crate) fn deserialize(
     ptr: *mut pyo3_ffi::PyObject,
