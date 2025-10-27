@@ -10,7 +10,6 @@ use std::borrow::Cow;
 use std::fmt;
 use std::io::Cursor;
 
-
 #[cfg(not(feature = "yyjson"))]
 pub(crate) fn deserialize(
     data: &'static str,
