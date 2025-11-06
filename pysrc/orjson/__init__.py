@@ -25,5 +25,5 @@ __all__ = (
     "OPT_STRICT_INTEGER",
     "OPT_UTC_Z",
     "OPT_CBOR",
-    "MAX_OPT"
+    "MAX_OPT",
 )

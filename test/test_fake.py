@@ -31,7 +31,7 @@ FAKER_LOCALES = [
 class TestFaker:
     @pytest.mark.skipif(Faker is None, reason="faker not available")
     @pytest.mark.parametrize(
-        ["dialect"], ([orjson.OPT_CBOR], [0]), ids=["CBOR", "JSON"]
+        ["dialect"], ([orjson.OPT_CBOR], [0]), ids=["CBOR", "JSON"],
     )
     def test_faker(self, dialect: int):
         fake = Faker(FAKER_LOCALES)
